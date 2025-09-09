@@ -1,0 +1,36 @@
+﻿@model Booking
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Add booking message</h2>
+
+<form method="post">
+    <div class="row mb-3">
+        <label asp-for="Name" class="col col-form-label"></label>
+        <div class="col">
+            <input asp-for="Name" class="form-control">
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <label asp-for="Title" class="col col-form-label"></label>
+        <div class="col">
+            <input asp-for="Title" class="form-control">
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <label asp-for="Message" class="col col-form-label"></label>
+        <div class="col">
+            <textarea asp-for="Message" class="col col-form-label"></textarea>
+            <span asp-validation-for="Message" class="text-danger"></span>
+        </div>
+    </div>
+    
+    <button id="Submit" type="submit" class="btn btn-primary button-dark">Submit</button>
+</form>
