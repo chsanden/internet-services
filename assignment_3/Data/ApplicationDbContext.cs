@@ -11,6 +11,4 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
     
-    
-
 }

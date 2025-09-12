@@ -94,11 +94,21 @@ public class RegisterModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
+            return Page();
+        
+        var u = new ApplicationUser
         {
-            var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email, Nickname = Input.Nickname };
-            var result = await _userManager.CreateAsync(user, Input.Password);
+            UserName = Input.Email, Email = Input.Email, Nickname = Input.Nickname
+        };
+        
+        var r = await _userManager.CreateAsync(u, Input.Password);
+        if (r.Succeeded)
+        {
+            await _signInManager.SignInAsync(u, isPersistent: false);
+            return LocalRedirect(returnUrl ?? Url.Content("~/"));
         }
+        
         
         
         returnUrl ??= Url.Content("~/");

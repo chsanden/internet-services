@@ -23,7 +23,7 @@ public class BlogController : Controller
     {
         var posts = await _db.BlogPosts
             .Include(p => p.User)
-            .OrderByDescending(p => p.User)
+            .OrderByDescending(p => p.Time)
             .ToListAsync();
         
         return View(posts);
@@ -58,23 +58,32 @@ public class BlogController : Controller
     [Authorize, HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        if (id != input.Id)
-            return BadRequest();
         var post = await _db.BlogPosts.FindAsync(id);
         if (post == null)
             return NotFound();
         if (post.UserId != _um.GetUserId(User))
             return Forbid();
-        if (!ModelState.IsValid)
-            return View(input);
+        return View(post);
+    }
+
+    [Authorize, HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, BlogPost input)
+    {
+        if (id != input.Id)
+            return BadRequest();
+        var post = await _db.BlogPosts.FindAsync(id);
+        if (post == null)
+            return NotFound();
+        if  (post.UserId != _um.GetUserId(User))
+            return Forbid();
         post.Title = input.Title;
         post.Summary = input.Summary;
-        post.Content = input.Content; 
+        post.Content = input.Content;
         post.Time = DateTime.Now;
-
+        _db.BlogPosts.Update(post);
         await _db.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
         
+        return RedirectToAction(nameof(Index));
     }
         
         
