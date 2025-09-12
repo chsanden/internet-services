@@ -94,32 +94,17 @@ public class RegisterModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
-        if (!ModelState.IsValid)
-            return Page();
-        
-        var u = new ApplicationUser
-        {
-            UserName = Input.Email, 
-            Email = Input.Email, 
-            Nickname = Input.Nickname
-        };
-        
-        var r = await _userManager.CreateAsync(u, Input.Password);
-        if (r.Succeeded)
-        {
-            await _signInManager.SignInAsync(u, isPersistent: false);
-            return LocalRedirect(returnUrl ?? Url.Content("~/"));
-        }
-        
-        
-        
         returnUrl ??= Url.Content("~/");
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (ModelState.IsValid)
         {
-            var user = CreateUser();
-            
-            user.Nickname = Input.Nickname;
+            var user = new ApplicationUser()
+            {
+                Email = Input.Email,
+                UserName = Input.Email,
+                Nickname = Input.Nickname,
+            };
+
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
             var result = await _userManager.CreateAsync(user, Input.Password);

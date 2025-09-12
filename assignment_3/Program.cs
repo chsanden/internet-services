@@ -10,7 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)  //CHANGE BEFORE SENDING
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
@@ -22,7 +22,7 @@ using (var scope = app.Services.CreateScope())      //Ensure fresh db at each bo
     
     db.Database.EnsureDeleted();
     db.Database.EnsureCreated();
-    await DemoData.InitializeDb(service);
+    //await DemoData.InitializeDb(service);
 }
 
 // Configure the HTTP request pipeline.

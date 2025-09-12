@@ -1,7 +1,7 @@
 ﻿@model BlogPost
 
 @{
-    Layout = "_Layout";
+    ViewData["Title"] = "Edit post";
 }
 
 <h2>Edit post</h2>
@@ -11,22 +11,22 @@
     
     <div class="mb-3">
         <label asp-for="Title">Title</label>
-        <input asp-for="Title" id="Title" class="form-control"/>
+        <input asp-for="Title" class="form-control" id="Title"/>
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="Summary">Summary</label>
-        <input asp-for="Summary" id="Summary" class="form-control"/>
+        <input asp-for="Summary" class="form-control" id="Summary"/>
         <span asp-validation-for="Summary" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label asp-for="Content">Content</label>
         <div class="mb-3">
-            <textarea class="form-control" asp-for="Content"></textarea>
+            <textarea class="form-control" asp-for="Content" id="Content"></textarea>
             <span asp-validation-for="Content" class="text-danger"></span>
         </div>
     </div>
     
-    <button id="Submit" type="submit" class="btn btn-success">Update</button>
+    <button type="submit" id="Submit" class="btn btn-success">Submit</button>
 </form>
 
