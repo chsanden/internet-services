@@ -51,7 +51,7 @@ public class DemoData
             await um.CreateAsync(jim, demoPass);
         }
 
-        if (!db.Users.Any())
+        if (!db.BlogPosts.Any())
         {
             db.BlogPosts.AddRange
             (

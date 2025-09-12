@@ -36,6 +36,8 @@ public class BlogController : Controller
     [Authorize, HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Add(BlogPost input)
     {
+        ModelState.Remove(nameof(BlogPost.UserId));
+        ModelState.Remove(nameof(BlogPost.User));
         if (!ModelState.IsValid)
             return View(input);
 
@@ -46,6 +48,7 @@ public class BlogController : Controller
             post.Summary = input.Summary;
             post.Content = input.Content;
             post.Time = DateTime.Now;
+            post.UserId = userId;
         }
         
 

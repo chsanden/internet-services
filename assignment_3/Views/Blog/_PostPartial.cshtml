@@ -1,15 +1,26 @@
 ﻿@model BlogPost
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<assignment_3.Data.ApplicationUser> UserManager
 
 @{
-    Layout = "_Layout";
+    var isOwner = User.Identity?.IsAuthenticated == true
+                  && UserManager.GetUserId(User) == Model.UserId;
 }
 
 <article class="post mb-4">
-    <div class="Nickname">@Model.User?.Nickname</div>
-    <div class="Title">@Model.Title</div>
-    <div class="Summary">@Model.Summary</div>
-    <div class="Content">@Model.Content</div>
+    <div class="Nickname">@Model.User?.Nickname</div><br/>
+    <div class="Title">@Model.Title</div><br/>
+    <div class="Summary">@Model.Summary</div><br/><br/>
+    <div class="Content" style="white-space: pre-line; word-break: break-word">@Model.Content</div><br/>
     <div class="Time">@Model.Time.ToString("dd.MM.yyyy")</div>
+    
+    @if (isOwner)
+    {
+        <div class="mt-2">
+            <a asp-controller="Blog" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+        </div>
+    }
+    <hr/>
 </article>
 
 

@@ -19,7 +19,9 @@ using (var scope = app.Services.CreateScope())      //Ensure fresh db at each bo
 {
     var db =  scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var service =  scope.ServiceProvider;
-
+    
+    db.Database.EnsureDeleted();
+    db.Database.EnsureCreated();
     await DemoData.InitializeDb(service);
 }
 

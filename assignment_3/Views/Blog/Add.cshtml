@@ -7,6 +7,7 @@
 <h2>New post</h2>
 
 <form asp-controller="Blog" asp-action="Add" method="post">
+    @Html.AntiForgeryToken()
     <div class="mb-3">
         <label asp-for="Title">Title</label>
         <input asp-for="Title" id="Title" class="form-control"/>
@@ -19,10 +20,12 @@
     </div>
     <div class="mb-3">
         <label asp-for="Content">Content</label>
-        <input asp-for="Content" id="Content" class="form-control"/>
-        <span asp-validation-for="Content" class="text-danger"></span>
+        <div class="mb-3">
+            <textarea class="form-control" asp-for="Content"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
     </div>
-    
+
     <button id="Submit" type="submit" class="btn btn-success">Save</button>
 
 </form>
