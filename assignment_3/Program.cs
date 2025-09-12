@@ -18,8 +18,9 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())      //Ensure fresh db at each boot
 {
     var db =  scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.EnsureDeleted();
-    db.Database.EnsureCreated();
+    var service =  scope.ServiceProvider;
+
+    await DemoData.InitializeDb(service);
 }
 
 // Configure the HTTP request pipeline.
