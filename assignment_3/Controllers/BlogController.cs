@@ -42,12 +42,12 @@ public class BlogController : Controller
         var userId = _um.GetUserId(User);
         var post = new BlogPost();
         {
-            Title = input.Title;
-            Summary = input.Summary;
-            Content = input.Content;
-            Time = DateTime.Now;
+            post.Title = input.Title;
+            post.Summary = input.Summary;
+            post.Content = input.Content;
+            post.Time = DateTime.Now;
         }
-        ;
+        
 
         _db.BlogPosts.Add(post);
         await _db.SaveChangesAsync();
@@ -78,7 +78,4 @@ public class BlogController : Controller
     }
         
         
-    }
-    
-    
 }
