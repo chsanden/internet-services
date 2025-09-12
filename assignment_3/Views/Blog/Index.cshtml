@@ -1,7 +1,19 @@
-﻿@model BlogPost
+﻿@model IEnumerable<assignment_3.Models.BlogPost>
 
 @{
     Layout = "_Layout";
+}
+
+<h1>Blog</h1>
+
+@foreach (var post in Model)
+{
+    @await Html.PartialAsync("_PostPartial", post)
+}
+
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <p><a class="btn btn-primary" asp-controller="Blog" asp-action="Add">Write new post</a></p>
 }
 
 

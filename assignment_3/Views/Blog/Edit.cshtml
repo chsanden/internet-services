@@ -4,4 +4,27 @@
     Layout = "_Layout";
 }
 
+<h2>Edit post</h2>
+
+<form asp-controller="Blog" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id"/>
+    
+    <div class="mb-3">
+        <label asp-for="Title">Title</label>
+        <input asp-for="Title" id="Title" class="form-control"/>
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Summary">Summary</label>
+        <input asp-for="Summary" id="Summary" class="form-control"/>
+        <span asp-validation-for="Summary" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Content">Content</label>
+        <input asp-for="Content" id="Content" class="form-control"/>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+    
+    <button id="Submit" type="submit" class="btn btn-success">Update</button>
+</form>
 

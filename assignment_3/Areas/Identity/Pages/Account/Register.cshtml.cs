@@ -99,7 +99,9 @@ public class RegisterModel : PageModel
         
         var u = new ApplicationUser
         {
-            UserName = Input.Email, Email = Input.Email, Nickname = Input.Nickname
+            UserName = Input.Email, 
+            Email = Input.Email, 
+            Nickname = Input.Nickname
         };
         
         var r = await _userManager.CreateAsync(u, Input.Password);
@@ -116,7 +118,8 @@ public class RegisterModel : PageModel
         if (ModelState.IsValid)
         {
             var user = CreateUser();
-
+            
+            user.Nickname = Input.Nickname;
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
             var result = await _userManager.CreateAsync(user, Input.Password);

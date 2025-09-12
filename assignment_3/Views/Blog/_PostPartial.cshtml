@@ -1,0 +1,15 @@
+﻿@model BlogPost
+
+@{
+    Layout = "_Layout";
+}
+
+<article class="post mb-4">
+    <div class="Nickname">@Model.User?.Nickname</div>
+    <div class="Title">@Model.Title</div>
+    <div class="Summary">@Model.Summary</div>
+    <div class="Content">@Model.Content</div>
+    <div class="Time">@Model.Time.ToString("dd.MM.yyyy")</div>
+</article>
+
+
