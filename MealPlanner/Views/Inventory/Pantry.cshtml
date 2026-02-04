@@ -1,0 +1,123 @@
+@model IEnumerable<MealPlanner.Models.PantryInventory>
+@using MealPlanner.Models
+@using MealPlanner.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "My Pantry Inventory";
+    var options = ViewBag.AvailableIngredients as List<SelectListItem> ?? new();
+    var unitOptions = ViewBag.UnitOptions as List<SelectListItem> ?? new();
+}
+
+<h2 class="mb-4">My Pantry</h2>
+
+<!-- Add Ingredients -->
+<form asp-action="Add" method="post" class="row g-2 mb-4">
+    <div class="col-md-6">
+        <label class="form-label">Ingredient</label>
+        <select name="ingredientId" class="form-select" required>
+            <option value="">Select an ingredient</option>
+            @foreach (var ingredient in options)
+            {
+                <option value="@ingredient.Value">@ingredient.Text</option>           
+            }       
+        </select>
+    </div>
+    
+    <div class="col-md-3">
+        <label class="form-label">Amount</label>
+        <input type="number" name="amount" step="0.01" min="0" class="form-control" placeholder="e.g. 250" required>
+        <div class="form-text">Leave empty to store 0</div>
+    </div>
+    
+    <div class="col-md-3">
+        <label class="form-label">Unit</label>
+        <select name="unitId" class="form-select" required>
+            <option value="">Select a unit</option>
+            @foreach (var unit in unitOptions)
+            {
+                <option value="@unit.Value">@unit.Text</option>           
+            }       
+        </select>
+    </div>
+    
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary">Add</button>       
+    </div>
+</form>
+
+<!-- Validation summary for Add -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <h4>Error</h4>
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values)
+            {
+                foreach (var errorMsg in error.Errors)
+                {
+                    <li>@errorMsg.ErrorMessage</li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <p>Your pantry is empty.</p>
+} else
+{
+    <table class="table table-striped align-middle">
+    <thead class="table-light">
+    <tr>
+        <th>Ingredient</th>
+        <th class="text-end">Amount</th>
+        <th>Unit</th>
+        <th>Updated</th>
+        <th class="text-end">Actions</th>           
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Ingredient?.IngredientName</td>
+            <td class="text-end">@((item.Amount ?? 0m).ToString("0.##"))</td>
+
+            <!-- Show unit -->
+            <td>
+                @if (item.Unit != null)
+                {
+                    @item.Unit.Name
+                } else
+                {
+                    <span class="text-muted">N/A</span>
+                }
+            </td>
+            <td>@item.LastUpdated.ToLocalTime().ToString("HH:mm")</td>
+            
+            <td class="text-end">
+                
+                <!-- Inline edit for amount -->
+                <form asp-action="Edit" method="post" class="d-inline-flex align-items-center me-2">
+                    <input type="hidden" name="ingredientId" value="@item.IngredientId"/>
+                    <input type="number" name="amount" step="0.01" min="0" class="form-control" value="@(item.Amount ?? 0m)">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+                
+                <!-- Delete button -->
+                <form asp-action="Delete" method="post" class="d-inline-flex align-items-center">
+                    <input type="hidden" name="ingredientId" value="@item.IngredientId"/>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+    </table>
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

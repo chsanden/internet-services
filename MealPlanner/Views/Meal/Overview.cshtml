@@ -1,0 +1,58 @@
+@model IEnumerable<MealPlanner.Models.Meal>
+
+@{
+    ViewData["Title"] = "Your meals";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 m-0">@ViewData["Title"]</h1>
+    <a class="btn btn-primary" asp-action="Create">Create meal</a>
+</div>
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No meals yet. Create your first meal to get started.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+        @foreach (var meal in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title mb-1">@meal.Name</h5>
+                        @if (!string.IsNullOrWhiteSpace(meal.Summary))
+                        {
+                            <p class="text-secondary mb-2">@meal.Summary</p>
+                        }
+                        @if (meal.Dishes != null && meal.Dishes.Any())
+                        {
+                            <p class="fw-semibold mb-1">Dishes</p>
+                            <ul class="list-group list-group-flush mb-3">
+                                @foreach (var md in meal.Dishes.OrderBy(d => d.Dish!.Name))
+                                {
+                                    <li class="list-group-item">@md.Dish!.Name</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-secondary fst-italic mb-3">No dishes selected.</p>
+                        }
+                        <div class="mt-auto d-flex gap-2">
+                            <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@meal.MealId">Edit</a>
+                            <form asp-action="Delete" method="post" class="m-0" onsubmit="return confirm('Delete this meal?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@meal.MealId"/>
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+

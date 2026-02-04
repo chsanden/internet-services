@@ -1,0 +1,240 @@
+@model MealPlanner.ViewModels.DishUpsertViewModel
+
+<h2>@(Model.DishId == 0 ? "Create dish" : "Edit dish")</h2>
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <div class="alert alert-info">
+        You can draft your dish below. You'll be asked to log in or create an account before saving.
+    </div>
+}
+
+<form asp-action="Upsert" method="post" class="container">
+    <input asp-for="DishId" type="hidden" />
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control"/>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Summary" class="form-label"></label>
+        <input asp-for="Summary" class="form-control"/>
+        <span asp-validation-for="Summary" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" rows="4" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="EstimatedTimeMinutes" class="form-label"></label>
+        <input asp-for="EstimatedTimeMinutes" type="number" min="0" class="form-control"/>
+        <span asp-validation-for="EstimatedTimeMinutes" class="text-danger"></span>
+    </div>
+
+    <h4 class="mt-4">Ingredients</h4>
+    <div class="card p-3 mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-6">
+                <label class="form-label">Add ingredient</label>
+                <select id="ingredient-select" class="form-select">
+                    <option value="">-- choose ingredient --</option>
+                    @foreach (var ing in Model.AllIngredients)
+                    {
+                        <option value="@ing.IngredientId">@ing.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-4 col-md-3">
+                <label class="form-label">Amount</label>
+                <input id="amount-input" class="form-control" type="number" step="0.01" min="0"/>
+            </div>
+
+            <div class="col-4 col-md-2">
+                <label class="form-label">Unit</label>
+                <select id="unit-select"
+                        class="form-select"
+                        asp-for="NewIngredient.UnitId"
+                        asp-items="Model.UnitOptions">
+                    <option value="">-- choose unit --</option>
+                </select>
+            </div>
+
+            <div class="col-4 col-md-1">
+                <button type="button" id="add-btn" class="btn btn-outline-primary w-100">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ingredient-list" class="list-group mb-3">
+        @if (Model.Ingredients != null && Model.Ingredients.Any())
+        {
+            for (var i = 0; i < Model.Ingredients.Count; i++)
+            {
+                var row = Model.Ingredients[i];
+                <div class="list-group-item mb-2">
+                    <input type="hidden" name="Ingredients[@i].IngredientId" value="@row.IngredientId" />
+                    <input type="hidden" name="Ingredients[@i].IngredientName" value="@row.IngredientName" />
+
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-md-5">
+                            <input class="form-control" value="@row.IngredientName" disabled />
+                        </div>
+
+                        <div class="col-4 col-md-3">
+                            <input name="Ingredients[@i].Amount"
+                                   class="form-control"
+                                   type="text"
+                                   inputmode="decimal"
+                                   value="@(row.Amount?.ToString() ?? "")" />
+                        </div>
+
+                        <div class="col-4 col-md-3">
+                            <select name="Ingredients[@i].UnitId" class="form-select">
+                                @foreach (var opt in Model.UnitOptions)
+                                {
+                                    <option value="@opt.Value"
+                                            selected="@(opt.Value == row.UnitId?.ToString())">
+                                        @opt.Text
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-4 col-md-1 d-flex justify-content-end">
+                            <button type="button" class="btn btn-sm btn-danger remove-ingredient">X</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+
+
+
+    <div class="d-flex gap-2">
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <button type="submit"
+                    class="btn btn-primary"
+                    formaction="@Url.Action("LoginToSave", "Dish")"
+                    formmethod="post"
+                    formnovalidate>
+                Login to save
+            </button>
+        }
+        else
+        {
+            <button type="submit"
+                    name="action"
+                    value="save"
+                    class="btn btn-primary">
+                Save
+            </button>
+        }
+
+        <a asp-action="Overview" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+
+    <script>
+        (function () {
+            const list = document.querySelector('#ingredient-list');
+            const addBtn = document.querySelector('#add-btn');
+            const ingredientSelect = document.querySelector('#ingredient-select');
+            const amountInput = document.querySelector('#amount-input');
+            const unitSelect = document.querySelector('#unit-select');
+
+            const unitOptions = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                    Model.UnitOptions.Select(o => new { value = o.Value, text = o.Text })
+                )
+            );
+
+            // Add ingredient row
+            addBtn.addEventListener('click', function () {
+                const id      = ingredientSelect.value;
+                const text    = ingredientSelect.options[ingredientSelect.selectedIndex]?.text || "";
+                const amount  = amountInput.value;
+                const unitVal = unitSelect.value;
+
+                if (!id) return;
+
+                const existingIds = Array.from(
+                    list.querySelectorAll('input[name$=".IngredientId"]')
+                ).map(i => i.value);
+
+                if (existingIds.includes(id)) {
+                    alert("This ingredient is already added to the dish.");
+                    return;
+                }
+
+                const index = list.querySelectorAll('.list-group-item').length;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'list-group-item mb-2';
+                wrapper.innerHTML = `
+                    <input type="hidden" name="Ingredients[${index}].IngredientId" value="${id}"/>
+                    <input type="hidden" name="Ingredients[${index}].IngredientName" value="${text}"/>
+
+                    <div class="row g-2 align-items-end"> 
+                        <div class="col-12 col-md-5">
+                            <input class="form-control" value="${text}" disabled/>   
+                        </div>
+                        <div class="col-4 col-md-3">
+                            <input name="Ingredients[${index}].Amount"
+                                   class="form-control"
+                                   type="text"
+                                   inputmode="decimal"
+                                   value="${amount || ''}"/>
+                        </div>
+                        <div class="col-4 col-md-3">
+                            <select name="Ingredients[${index}].UnitId" class="form-select">
+                                ${unitOptions.map(opt =>
+                                    `<option value="${opt.value}" ${opt.value == unitVal ? 'selected' : ''}>${opt.text}</option>`
+                                ).join('')}
+                            </select>                        
+                        </div>
+                        <div class="col-4 col-md-1 d-flex justify-content-end">
+                            <button type="button" class="btn btn-sm btn-danger remove-ingredient">X</button>
+                        </div>
+                    </div>`;
+
+                list.appendChild(wrapper);
+
+                ingredientSelect.value = "";
+                amountInput.value = "";
+                unitSelect.value = "";
+            });
+
+            // Remove ingredient row 
+            list.addEventListener('click', function (e) {
+                const btn = e.target.closest('.remove-ingredient');
+                if (!btn) return;
+
+                const row = btn.closest('.list-group-item');
+                if (!row) return;
+
+                row.remove();
+
+                // Reindex remaining rows so model binding stays valid
+                const items = list.querySelectorAll('.list-group-item');
+                items.forEach((item, index) => {
+                    item.querySelectorAll('input[name], select[name]').forEach(input => {
+                        input.name = input.name.replace(/Ingredients\[\d+\]/, `Ingredients[${index}]`);
+                    });
+                });
+            });
+        })();
+    </script>
+}
